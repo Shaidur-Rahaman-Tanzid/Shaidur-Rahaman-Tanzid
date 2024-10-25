@@ -213,7 +213,37 @@
       </div>
 
     </section><!-- /Resume Section -->
-
+  <!-- Weather section -->
+  <section id="weather" class="weather section">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <h2>Current Weather</h2>
+      <div id="weather-info" class="weather-container">
+        <!-- Left column: First half of the information -->
+        <div class="weather-column">
+          <p><strong>Location:</strong> <span id="location"></span></p>
+          <p><strong>Temperature:</strong> <span id="temperature"></span>°C</p>
+          <p><strong>Feels Like:</strong> <span id="feels-like"></span>°C</p>
+          <p><strong>Condition:</strong> <span id="condition"></span></p>
+        </div>
+        
+        <!-- Center column: Second half of the information -->
+        <div class="weather-column">
+          <p><strong>Humidity:</strong> <span id="humidity"></span>%</p>
+          <p><strong>Wind Speed:</strong> <span id="wind-speed"></span> m/s</p>
+          <p><strong>Sunrise:</strong> <span id="sunrise"></span></p>
+          <p><strong>Sunset:</strong> <span id="sunset"></span></p>
+        </div>
+        
+        <!-- Right column: Weather icon -->
+        <div class="weather-icon">
+          <img id="weather-icon" alt="Weather Icon" />
+        </div>
+      </div>
+    </div>
+  </section>
+    
+  
+  
 
 
     <!-- Contact Section -->
@@ -316,6 +346,65 @@
     </div>
 
   </footer>
+
+  
+  <script>
+    const apiKey = 'e6bd4b543ac24b817cdcc5bb28470112';
+
+    async function getWeather(lat, lon) {
+      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+      
+      try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        
+        // Display current weather data
+        document.getElementById('location').textContent = data.name;
+        document.getElementById('temperature').textContent = data.main.temp;
+        document.getElementById('feels-like').textContent = data.main.feels_like;
+        document.getElementById('condition').textContent = data.weather[0].description;
+        document.getElementById('humidity').textContent = data.main.humidity;
+        document.getElementById('wind-speed').textContent = data.wind.speed;
+
+        // Format and display sunrise and sunset times
+        const sunriseTime = new Date(data.sys.sunrise * 1000);
+        const sunsetTime = new Date(data.sys.sunset * 1000);
+        document.getElementById('sunrise').textContent = sunriseTime.toLocaleTimeString();
+        document.getElementById('sunset').textContent = sunsetTime.toLocaleTimeString();
+        
+        // Display weather icon
+        const iconCode = data.weather[0].icon;
+        const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+        document.getElementById('weather-icon').src = iconUrl;
+
+      } catch (error) {
+        console.error('Error fetching weather data:', error);
+      }
+    }
+
+    // Get the user's current location and call getWeather
+    function fetchLocationAndWeather() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            getWeather(lat, lon);
+          },
+          (error) => {
+            console.error("Geolocation error:", error);
+            alert("Unable to retrieve your location.");
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    }
+
+    // Call the function when the page loads
+    document.addEventListener('DOMContentLoaded', fetchLocationAndWeather);
+</script>
+
 
   <!-- Scroll Top -->
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
